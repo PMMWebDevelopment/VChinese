@@ -43,8 +43,6 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 
 * Installed hanzi-writer to provide character stroke-order animations and user challenges <https://chanind.github.io/hanzi-writer/docs.html>
 
-* Installed resources from the Chinese Text Project API <https://ctext.org/tools/api>
-
 * Installed vue-resource 1.5.0 to handle HTTP requests <https://github.com/pagekit/vue-resource>
 
 * Installed firebase 4.12.1 and vuefire 1.4.5
