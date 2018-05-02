@@ -1,0 +1,27 @@
+{
+  "rules": {
+    "writing": {
+      ".read": true,
+      ".write": "auth != null",
+      ".indexOn": [
+        "key",
+        "hsk"
+      ]
+    },
+    "grammar": {
+      ".read": true,
+      ".write": "auth != null",
+      ".indexOn": [
+        "key",
+        "hsk"
+      ]
+    },
+    "bookmarks": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".indexOn": [
+        "user"
+      ]
+    }
+  }
+}
