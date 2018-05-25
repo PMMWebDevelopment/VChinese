@@ -61,6 +61,10 @@ module.exports = {
         "space-before-function-paren": "off",
         "comma-dangle": "off",
         "no-console": 'off',
-        "no-alert": "off"
+        "no-alert": "off",
+        "max-len": "off",
+        "func-call-spacing": "off",
+        "no-spaced-func": "off",
+        "space-in-parens": "off"
     }
 };

@@ -6,14 +6,20 @@ import About from '@/components/About';
 import Grammar from '@/components/Grammar';
 import Writing from '@/components/Writing';
 import Signuplogin from '@/components/Signuplogin';
-import GrammarHSKPage from '@/components/GrammarLessons/GrammarHSKPage';
-import WritingHSKPage from "@/components/WritingLessons/WritingHSKPage";
-import CharacterPage from "@/components/WritingLessons/CharacterPage";
-import GrammarPointPage from "@/components/GrammarLessons/GrammarPointPage";
+
+const GrammarHSKPage = () =>
+    import ( /* webpackChunkName: "grammarhskpage" */ '@/components/GrammarLessons/GrammarHSKPage');
+const WritingHSKPage = () =>
+    import ( /* webpackChunkName: "writinghskpage" */ '@/components/WritingLessons/WritingHSKPage');
+const CharacterPage = () =>
+    import ( /* webpackChunkName: "characterpage" */ '@/components/WritingLessons/CharacterPage');
+const GrammarPointPage = () =>
+    import ( /* webpackChunkName: "grammarpointpage" */ '@/components/GrammarLessons/GrammarPointPage');
 
 Vue.use(Router);
 
 const router = new Router({
+    mode: 'history',
     routes: [{
             path: "/",
             name: "Home",

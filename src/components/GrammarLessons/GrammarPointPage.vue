@@ -5,7 +5,8 @@
         <!-- eslint-disable-next-line -->
         <div id='grammar-point-title' class='md-layout-item'>{{ $store.state.chosenGrammarPoint[0] }}</div>
       </div>
-      <div class='md-layout'>
+      <div v-if='loading'><app-loader></app-loader></div>
+      <div v-else class='md-layout'>
         <div class='md-layout-item' id='grammar-point-explanation' v-html='this.commentary'>
         </div>
         <div class='md-layout-item' id='grammar-point-examples' v-html='this.examples'>
@@ -15,12 +16,13 @@
     <!-- eslint-disable-next-line -->
     <md-button class="md-raised md-accent" to='/grammarhskpage'>Go back to list of grammar points</md-button>
     <!-- eslint-disable-next-line -->
-    <md-button v-if='isLoggedIn' class="md-raised md-accent" @click='setBookmark'>Set your bookmark on this grammar point</md-button>
+    <md-button v-if='isLoggedIn' class="md-raised md-accent" @click='setBookmark'>{{ this.$store.state.bookmarkedGrammarPoint === this.$store.state.chosenGrammarPoint[0] ? 'This grammar point is bookmarked' : 'Bookmark this grammar point' }}</md-button>
   </div>
 </template>
 
 <script>
   import firebase from 'firebase';
+  import Loader from '../Loader';
 
   export default {
     name: 'GrammarPointPage',
@@ -33,7 +35,9 @@
         userHasBookmark: false,
         usersBookmarkId: '',
         usersBookmarkName: '',
-        authToken: ''
+        authToken: '',
+        loading: false
+        // bookmarkButtonText: this.$store.state.bookmarkedGrammarPoint === this.$store.state.chosenGrammarPoint[0] ? 'This grammar point is bookmarked' : 'Bookmark this grammar point'
       }
     },
     computed: {
@@ -44,14 +48,19 @@
         return this.$store.state.bookmarkedGrammarPoint;
       }
     },
+    components: {
+      appLoader: Loader
+    },
     methods: {
       getCommentaryAndExample() {
+        this.loading = true;
         this.$http.get(`https://pastebin.com/raw/${this.$store.state.chosenGrammarPoint[1]}`).then((response) => {
           this.commentary = response.body;
         });
         this.$http.get(`https://pastebin.com/raw/${this.$store.state.chosenGrammarPoint[2]}`).then((response) => {
           this.examples = response.body;
         });
+        this.loading = false;
       },
       setBookmark() {
         const bookmarkData = {
@@ -59,46 +68,45 @@
           bookmark: this.$store.state.chosenGrammarPoint[0]
         }
         this.currentUser = firebase.auth().currentUser.email;
+        this.$store.commit('setBookmarkedGrammarPoint', this.$store.state.chosenGrammarPoint[0]);
         firebase.auth().currentUser.getIdToken().then((idToken) => {
-          console.log('CL Line 59: ', this.userHasBookmark);
           if (this.$store.state.bookmarkedGrammarPoint !== '') {
+            // if the user has a bookmark - update it
             this.$http.put(`https://vchinese-pmm.firebaseio.com/bookmarks/${this.usersBookmarkId}.json?auth=${idToken}`, bookmarkData).then((response) => {
-              console.log(response);
+              alert(`You have bookmarked this grammar point: ${response.body.bookmark}`);
             });
           } else {
+            // if the user doesn't have a bookmark - create one
             this.$http.post(`https://vchinese-pmm.firebaseio.com/bookmarks.json?auth=${idToken}`, bookmarkData).then((response) => {
-            console.log(response);
+              alert(`You have bookmarked this grammar point: ${response.body.bookmark}`);
             });
           }
         },
           (err) => {
             this.userHasBookmark = false;
             console.log(err.message);
-          });
+          }
+        );
       }
     },
     created() {
       if (firebase.auth().currentUser) {
-        console.log(firebase.auth().currentUser);
         this.currentUser = firebase.auth().currentUser.email;
-        firebase.auth().currentUser.getIdToken().then((idToken) => {
-          this.$http.get(`https://vchinese-pmm.firebaseio.com/bookmarks.json?auth=${idToken}&orderBy="user"&equalTo="${this.currentUser}"`).then((response) => {
-          console.log(response);
-          this.usersBookmarkId = Object.keys(response.body)[0];
-          this.usersBookmarkName = response.body[this.usersBookmarkId].bookmark;
-          console.log(this.usersBookmarkName);
-          this.$store.commit('setBookmarkedGrammarPoint', this.usersBookmarkName);
-        },
-          (err) => {
-            this.userHasBookmark = false;
-            console.log(err.message);
+          firebase.auth().currentUser.getIdToken().then((idToken) => {
+            this.$http.get(`https://vchinese-pmm.firebaseio.com/bookmarks.json?auth=${idToken}&orderBy="user"&equalTo="${this.currentUser}"`).then((response) => {
+              this.usersBookmarkId = Object.keys(response.body)[0];
+              this.usersBookmarkName = response.body[this.usersBookmarkId].bookmark;
+            },
+            (err) => {
+              this.userHasBookmark = false;
+              console.log(err.message);
+            });
           });
-        });
         this.isLoggedIn = true;
       }
     },
     mounted() {
-      this.getCommentaryAndExample()
+      this.getCommentaryAndExample();
     }
   }
 </script>

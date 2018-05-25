@@ -4,7 +4,8 @@
       <!-- eslint-disable-next-line -->
       <div class="md-display-3">Writing {{ this.chosenWritingSection }} - Page {{ this.selectedWritingPage }} </div>
     </div>
-    <div id='character-buttons-container' class='md-layout-item md-layout md-size-95' >
+    <div id='character-buttons-container' class='md-layout-item md-layout md-size-95'>
+      <app-loader v-if='loading'></app-loader>
     <!-- eslint-disable-next-line -->
       <md-chip class="md-accent" md-clickable v-for='(character, index) in this.charactersThisPage' :key='index' @click='goToCharacterPage(character)'><b>{{ character[0] }} <i>{{ character[2] }}</i></b></md-chip>
     </div>
@@ -18,8 +19,9 @@
 </template>
 
 <script>
+  import CharacterPage from '@/components/WritingLessons/CharacterPage';
   import { mapGetters } from 'vuex';
-  import CharacterPage from './CharacterPage';
+  import Loader from '../Loader';
 
   export default {
     name: 'WritingHSKPage',
@@ -38,11 +40,13 @@
         endIdThisSection: Number,
         startIdThisPage: Number,
         endIdThisPage: Number,
-        character: []
+        character: [],
+        loading: false
       }
     },
     components: {
-      characterPage: CharacterPage
+      characterPage: CharacterPage,
+      appLoader: Loader
     },
     created() {
       this.chosenWritingSection = this.$store.getters.currentWritingLevel;
@@ -53,6 +57,7 @@
       //   'changeCharacter'
       // },
       changePage(page) {
+        this.loading = true;
         this.selectedWritingPage = page;
         this.$store.commit('changeWritingPage', page);
         console.log(this.selectedWritingPage);
@@ -60,8 +65,10 @@
         console.log(this.numberOfPages);
         this.charactersThisPage = [];
         this.setCharactersThisPage();
+        this.loading = false;
       },
       getCharacters() {
+        this.loading = true;
         this.selectedWritingPage = this.$store.getters.currentWritingPage;
         console.log(this.chosenWritingSection);
         this.$http.get(`https://vchinese-pmm.firebaseio.com/writing.json?orderBy="hsk"&equalTo=${this.chosenWritingSection}`).then((response) => {
@@ -69,6 +76,7 @@
           console.log(this.charactersThisSection);
           this.numberOfPages = Math.ceil((Object.keys(response.body).length) / 100);
           this.setCharactersThisPage();
+          this.loading = false;
         });
       },
       setCharactersThisPage() {

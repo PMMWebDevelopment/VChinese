@@ -20,8 +20,8 @@ import App from './App';
 import firebaseApp from './firebase';
 import router from './router';
 import store from "./datatransfer/store";
-import WritingHSKPage from './components/WritingLessons/WritingHSKPage';
-import CharacterPage from "./components/WritingLessons/CharacterPage";
+// import WritingHSKPage from './components/WritingLessons/WritingHSKPage';
+// import CharacterPage from "./components/WritingLessons/CharacterPage";
 
 Vue.config.productionTip = false;
 Vue.use(MdButton);
@@ -43,7 +43,11 @@ firebase.auth().onAuthStateChanged(() => {
             el: "#app",
             router,
             firebaseApp,
-            components: { App, WritingHSKPage, CharacterPage },
+            components: {
+                App,
+                // WritingHSKPage,
+                // CharacterPage
+            },
             template: "<App/>"
         });
     }

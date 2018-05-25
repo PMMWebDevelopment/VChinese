@@ -5,6 +5,7 @@
       <div class="md-display-3">Grammar {{ this.chosenGrammarSection }} - Part {{ this.selectedGrammarPage }}</div>
     </div>
     <div id='grammar-points-container' class='md-layout-item md-layout md-size-95'>
+      <app-loader v-if='loading'></app-loader>
       <!-- eslint-disable-next-line -->
       <md-chip class="md-accent" md-clickable v-for='(grammarPoint, index) in this.grammarPointsThisPage' :key='index' @click='goToGrammarLesson(grammarPoint)'><b>{{ grammarPoint[0] }} <i class="badge" v-if="$store.state.bookmarkedGrammarPoint === grammarPoint[0]">B</i></b></md-chip>
     </div>
@@ -20,8 +21,9 @@
 </template>
 
 <script>
+  import GrammarPointPage from '@/components/GrammarLessons/GrammarPointPage';
   import { mapGetters } from 'vuex';
-  import GrammarPointPage from '../GrammarLessons/GrammarPointPage';
+  import Loader from '../Loader';
 
   export default {
     name: 'GrammarHSKPage',
@@ -43,11 +45,13 @@
         endIdThisSection: Number,
         startIdThisPage: Number,
         endIdThisPage: Number,
-        grammarPoint: []
+        grammarPoint: [],
+        loading: false
       }
     },
     components: {
-      grammarPointPage: GrammarPointPage
+      grammarPointPage: GrammarPointPage,
+      appLoader: Loader
     },
     created() {
       this.chosenGrammarSection = this.$store.getters.currentGrammarLevel;
@@ -55,18 +59,22 @@
     },
     methods: {
       changePage(page) {
+        this.loading = true;
         this.selectedGrammarPage = page;
         this.$store.commit('changeGrammarPage', page);
         this.grammarPointsThisPage = [];
         this.setGrammarPointsThisPage();
+        this.loading = false;
       },
       getGrammarPoints() {
+        this.loading = true;
         this.selectedGrammarPage = this.$store.getters.currentGrammarPage;
         console.log(this.chosenGrammarSection);
         this.$http.get(`https://vchinese-pmm.firebaseio.com/grammar.json?orderBy="hsk"&equalTo=${this.chosenGrammarSection}`).then((response) => {
           this.grammarPointsThisSection = response.body;
           this.numberOfPages = Math.ceil((Object.keys(response.body).length) / 25);
           this.setGrammarPointsThisPage();
+          this.loading = false;
         });
       },
       setGrammarPointsThisPage() {

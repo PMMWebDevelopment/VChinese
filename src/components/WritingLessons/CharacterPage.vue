@@ -8,11 +8,13 @@
       <div id='character-displays' class='md-layout md-alignment-top-center'>
         <div id='character-stroke-order' class='md-layout-item md-alignment-top-center'>
           <h3>How to write this character: -</h3>
-          <div id="character-target-div1"></div>
+          <app-loader v-if='loading'></app-loader>
+          <div v-else id="character-target-div1"></div>
         </div>
         <div id='character-quiz' class='md-layout-item md-alignment-top-center'>
           <h3>Now you have a go: -</h3>
-          <div id='character-target-div2'></div>
+          <app-loader v-if='loading'></app-loader>
+          <div v-else id='character-target-div2'></div>
         </div>
       </div>
     </div>
@@ -23,20 +25,30 @@
 
 <script>
   import HanziWriter from 'hanzi-writer';
+  import Loader from '../Loader';
 
   export default {
     name: 'CharacterPage',
+    data() {
+      return {
+        loading: false,
+        characterSize: window.innerWidth > 768 ? (window.innerWidth * 0.20) : (window.innerWidth * 0.35)
+      }
+    },
     computed: {
       character() {
         return this.$store.state.chosenCharacter;
       }
     },
+    components: {
+      appLoader: Loader
+    },
     methods: {
       strokeOrder(hanzi) {
         const demo = new HanziWriter('character-target-div1', hanzi, {
-        width: 250,
-        height: 250,
-        padding: 10,
+        width: this.characterSize,
+        height: this.characterSize,
+        padding: 0,
         outlineColor: '#ec3135',
         strokeColor: '#ffff00',
         delayBetweenLoops: 3000
@@ -45,9 +57,9 @@
       },
       quiz(hanzi) {
         const quiz = new HanziWriter('character-target-div2', hanzi, {
-        width: 250,
-        height: 250,
-        padding: 10,
+        width: this.characterSize,
+        height: this.characterSize,
+        padding: 0,
         outlineColor: '#000000',
         drawingColor: '#ffff00',
         strokeColor: '#ffff00',
@@ -55,13 +67,11 @@
         quiz.quiz();
       }
     },
-    created() {
-      console.log(this.$store.state.chosenCharacter);
-      },
     mounted() {
-      console.log(this.$store.state.chosenCharacter);
+      this.loading = true;
       this.strokeOrder(this.$store.state.chosenCharacter[0]);
       this.quiz(this.$store.state.chosenCharacter[0]);
+      this.loading = false;
     }
   }
 </script>
@@ -70,11 +80,11 @@
 
 #character-page-container {
   background-color: rgba(255, 0, 0, .75);
-  min-height: 60vh;
+  height: 60vh;
   color: yellow;
   text-shadow: 1px 1px 1px black;
   font-weight: bold;
-  text-align: center;
+  align-items: center;
   width: 90%;
   margin: 0 auto;
 }
@@ -86,23 +96,30 @@
 }
 
 #character-displays {
-  /* background-color: black; */
   width: 90%;
+  padding: 0;
   margin: 0 auto;
   text-align: center;
 }
 
 #character-stroke-order,
 #character-quiz {
-  text-align: center;
-  margin: 0;
+  margin: 0 auto;
   padding: 0;
   height: 450px;
 }
 
 #character-target-div1,
 #character-target-div2 {
-  text-align: center;
+  margin: 0 auto;
+  padding-left: 125px;
   height: 90%;
+}
+
+@media (max-width: 768px) {
+  #character-target-div1,
+  #character-target-div2 {
+    padding-left: 0;
+  }
 }
 </style>
