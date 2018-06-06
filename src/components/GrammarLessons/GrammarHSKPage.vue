@@ -16,7 +16,7 @@
       <md-radio v-else :value="true" @change='changePage(page)'>Page {{ page }}</md-radio>
     </div>
     <!-- eslint-disable-next-line -->
-    <span v-if='$store.state.bookmarkedGrammarPoint !== ""' id='bookmarked'>(B) = bookmarked</span>
+    <span v-if='$store.state.bookmarkedGrammarPoint !== null' id='bookmarked'>(B) = bookmarked</span>
   </div>
 </template>
 
@@ -69,7 +69,6 @@
       getGrammarPoints() {
         this.loading = true;
         this.selectedGrammarPage = this.$store.getters.currentGrammarPage;
-        console.log(this.chosenGrammarSection);
         this.$http.get(`https://vchinese-pmm.firebaseio.com/grammar.json?orderBy="hsk"&equalTo=${this.chosenGrammarSection}`).then((response) => {
           this.grammarPointsThisSection = response.body;
           this.numberOfPages = Math.ceil((Object.keys(response.body).length) / 25);

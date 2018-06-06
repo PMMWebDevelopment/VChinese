@@ -23,6 +23,7 @@
 
 <script>
   import firebase from 'firebase';
+import { mapGetters } from 'vuex';
 
   export default {
     name: 'Signuplogin',
@@ -32,43 +33,59 @@
         password: ''
       }
     },
+    computed: {
+        ...mapGetters(
+        [
+          'loggedInUser'
+        ]
+      ),
+    },
     methods: {
       register(event) {
         firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
-          .then((user) => {
-            // this.getToken();
-            alert(`Account created for ${user.email}`);
-            this.$router.go({ path: this.$router.path });
+          .then((response) => {
+            this.$store.commit('changeUserName', response.email);
+            this.$store.commit('changeLoginStatus', true);
+            alert(`Account created for ${this.email}`);
+            this.clear();
+            this.$router.push({ path: '/' });
           },
           (err) => {
             alert(err.message);
-          })
+            this.clear();
+          });
         event.preventDefault();
+      },
+      clear() {
+        this.email = '';
+        this.password = '';
       },
       login(event) {
         firebase.auth().signInWithEmailAndPassword(this.email, this.password)
-          .then((user) => {
+          .then((response) => {
             this.getBookmarks();
-            alert(`${user.email} logged in`);
-            this.$router.go({ path: this.$router.path });
+            this.$store.commit('changeUserName', response.email);
+            this.$store.commit('changeLoginStatus', true);
+            alert(`${this.email} logged in`);
+            this.clear();
+            this.$router.push({ path: '/' });
           },
           (err) => {
             alert(err.message);
+            this.clear();
           });
         event.preventDefault();
       },
       getBookmarks() {
         firebase.auth().currentUser.getIdToken().then((idToken) => {
-          this.$http.get(`https://vchinese-pmm.firebaseio.com/bookmarks.json?auth=${idToken}&orderBy="user"&equalTo="${this.currentUser}"`).then((response) => {
-          console.log(response);
-          this.usersBookmarkId = Object.keys(response.body)[0];
-          this.usersBookmarkName = response.body[this.usersBookmarkId].bookmark;
-          console.log(this.usersBookmarkName);
-          this.$store.commit('setBookmarkedGrammarPoint', this.usersBookmarkName);
+          this.$http.get(`https://vchinese-pmm.firebaseio.com/bookmarks.json?auth=${idToken}&orderBy="user"&equalTo="${this.$store.state.loggedInUser}"`).then((response) => {
+          this.usersBookmarkID = Object.keys(response.body)[0];
+          this.usersBookmarkedLessonNumber = response.body[this.usersBookmarkID].bookmark;
+          this.$store.commit('setBookmarkedGrammarPoint', this.usersBookmarkedLessonNumber);
+          this.$store.commit('changeUsersBookmarkID', this.usersBookmarkID);
         },
           (err) => {
-            this.userHasBookmark = false;
-            console.log(err.message);
+            alert(err.message);
           });
         });
       }

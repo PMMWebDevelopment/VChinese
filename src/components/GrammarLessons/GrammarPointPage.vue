@@ -16,12 +16,13 @@
     <!-- eslint-disable-next-line -->
     <md-button class="md-raised md-accent" to='/grammarhskpage'>Go back to list of grammar points</md-button>
     <!-- eslint-disable-next-line -->
-    <md-button v-if='isLoggedIn' class="md-raised md-accent" @click='setBookmark'>{{ this.$store.state.bookmarkedGrammarPoint === this.$store.state.chosenGrammarPoint[0] ? 'This grammar point is bookmarked' : 'Bookmark this grammar point' }}</md-button>
+    <md-button v-if='$store.state.loggedInUser !== ""' class="md-raised md-accent" @click='setBookmark'>{{ this.$store.state.bookmarkedGrammarPoint === this.$store.state.chosenGrammarPoint[0] ? 'This grammar point is bookmarked' : 'Bookmark this grammar point' }}</md-button>
   </div>
 </template>
 
 <script>
   import firebase from 'firebase';
+  import { mapGetters } from 'vuex';
   import Loader from '../Loader';
 
   export default {
@@ -30,19 +31,22 @@
       return {
         commentary: '',
         examples: '',
-        isLoggedIn: false,
-        currentUser: '',
-        userHasBookmark: false,
-        usersBookmarkId: '',
-        usersBookmarkName: '',
         authToken: '',
         loading: false
-        // bookmarkButtonText: this.$store.state.bookmarkedGrammarPoint === this.$store.state.chosenGrammarPoint[0] ? 'This grammar point is bookmarked' : 'Bookmark this grammar point'
       }
     },
     computed: {
+      ...mapGetters(
+        [
+          'loggedInUser',
+          'currentGrammarLevel'
+        ]
+      ),
       grammarPoint() {
         return this.$store.state.chosenGrammarPoint;
+      },
+      usersBookmarkID() {
+        return this.$store.state.usersBookmarkID;
       },
       grammarBookmark() {
         return this.$store.state.bookmarkedGrammarPoint;
@@ -64,45 +68,29 @@
       },
       setBookmark() {
         const bookmarkData = {
-          user: this.currentUser,
+          user: this.$store.state.loggedInUser,
           bookmark: this.$store.state.chosenGrammarPoint[0]
         }
-        this.currentUser = firebase.auth().currentUser.email;
-        this.$store.commit('setBookmarkedGrammarPoint', this.$store.state.chosenGrammarPoint[0]);
         firebase.auth().currentUser.getIdToken().then((idToken) => {
-          if (this.$store.state.bookmarkedGrammarPoint !== '') {
+          if (this.$store.state.bookmarkedGrammarPoint !== null) {
+            this.$store.commit('setBookmarkedGrammarPoint', this.$store.state.chosenGrammarPoint[0]);
             // if the user has a bookmark - update it
-            this.$http.put(`https://vchinese-pmm.firebaseio.com/bookmarks/${this.usersBookmarkId}.json?auth=${idToken}`, bookmarkData).then((response) => {
+            this.$http.put(`https://vchinese-pmm.firebaseio.com/bookmarks/${this.$store.state.usersBookmarkId}.json?auth=${idToken}`, bookmarkData).then((response) => {
               alert(`You have bookmarked this grammar point: ${response.body.bookmark}`);
             });
           } else {
+            this.$store.commit('setBookmarkedGrammarPoint', this.$store.state.chosenGrammarPoint[0]);
             // if the user doesn't have a bookmark - create one
             this.$http.post(`https://vchinese-pmm.firebaseio.com/bookmarks.json?auth=${idToken}`, bookmarkData).then((response) => {
+              this.$store.commit('changeUsersBookmarkID', response.body.name);
               alert(`You have bookmarked this grammar point: ${response.body.bookmark}`);
             });
           }
         },
           (err) => {
-            this.userHasBookmark = false;
             console.log(err.message);
           }
         );
-      }
-    },
-    created() {
-      if (firebase.auth().currentUser) {
-        this.currentUser = firebase.auth().currentUser.email;
-          firebase.auth().currentUser.getIdToken().then((idToken) => {
-            this.$http.get(`https://vchinese-pmm.firebaseio.com/bookmarks.json?auth=${idToken}&orderBy="user"&equalTo="${this.currentUser}"`).then((response) => {
-              this.usersBookmarkId = Object.keys(response.body)[0];
-              this.usersBookmarkName = response.body[this.usersBookmarkId].bookmark;
-            },
-            (err) => {
-              this.userHasBookmark = false;
-              console.log(err.message);
-            });
-          });
-        this.isLoggedIn = true;
       }
     },
     mounted() {

@@ -65,6 +65,7 @@ module.exports = {
         "max-len": "off",
         "func-call-spacing": "off",
         "no-spaced-func": "off",
-        "space-in-parens": "off"
+        "space-in-parens": "off",
+        'linebreak-style': 'off'
     }
 };

@@ -7,35 +7,30 @@
       <md-tab id="tab-writing" md-label="Writing" to="/writing"></md-tab>
       <md-tab id="tab-about" md-label="About" to="/about"></md-tab>
        <!-- eslint-disable-next-line -->
-      <md-tab v-if='!isLoggedIn' id="tab-signuplogin" md-label="Sign up / Log in" to="/signuplogin"></md-tab>
+      <md-tab v-if='$store.state.loginStatus' id="tab-logout" to='/logout' md-label='Log out'></md-tab>
        <!-- eslint-disable-next-line -->
-      <md-tab v-if='isLoggedIn' @click='logout' id="tab-logout" md-label='Log out'></md-tab>
+      <md-tab v-if='$store.state.loginStatus === false' id="tab-signuplogin" md-label="Sign up / Log in" to="/signuplogin"></md-tab>
     </md-tabs>
   </div>
 </template>
 
 <script>
-  import firebase from 'firebase';
+  import { mapGetters } from 'vuex';
 
   export default {
     name: 'Header',
-    data() {
-      return {
-        isLoggedIn: false,
-        currentUser: false
-      }
-    },
-    created() {
-      if (firebase.auth().currentUser) {
-        this.isLoggedIn = true;
-        this.currentUser = firebase.auth().currentUser.email
-      }
-    },
-    methods: {
-      logout() {
-        firebase.auth().signOut().then(() => {
-          this.$router.go({ path: this.$router.path });
-        });
+    computed: {
+      ...mapGetters(
+        [
+          'currentUser',
+          'currentLoginStatus'
+        ]
+      ),
+      loggedInUser() {
+        return this.$store.state.loggedInUser;
+      },
+      loginStatus() {
+        return this.$store.state.loginStatus;
       }
     }
   }

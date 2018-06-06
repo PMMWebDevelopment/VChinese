@@ -6,6 +6,7 @@ import About from '@/components/About';
 import Grammar from '@/components/Grammar';
 import Writing from '@/components/Writing';
 import Signuplogin from '@/components/Signuplogin';
+import Logout from '@/components/Logout';
 
 const GrammarHSKPage = () =>
     import ( /* webpackChunkName: "grammarhskpage" */ '@/components/GrammarLessons/GrammarHSKPage');
@@ -43,10 +44,12 @@ const router = new Router({
         {
             path: "/signuplogin",
             name: "Signuplogin",
-            component: Signuplogin,
-            meta: {
-                requiresGuest: true
-            }
+            component: Signuplogin
+        },
+        {
+            path: "/logout",
+            name: "Logout",
+            component: Logout
         },
         {
             path: "/writinghskpage",

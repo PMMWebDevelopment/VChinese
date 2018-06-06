@@ -20,8 +20,6 @@ import App from './App';
 import firebaseApp from './firebase';
 import router from './router';
 import store from "./datatransfer/store";
-// import WritingHSKPage from './components/WritingLessons/WritingHSKPage';
-// import CharacterPage from "./components/WritingLessons/CharacterPage";
 
 Vue.config.productionTip = false;
 Vue.use(MdButton);

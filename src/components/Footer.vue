@@ -1,6 +1,6 @@
 <template>
-  <div v-if='isLoggedIn' class='footer'>
-    <h3>Logged in as {{ this.currentUser }}. Website designed by P M Meddings using <a href='https://vuejs.org/' target='_blank'>VueJS</a> and the <a href='https://chanind.github.io/hanzi-writer/docs.html' target='_blank'>Hanzi Writer</a> API. This site is indented as a free educational tool.</h3>
+  <div v-if='$store.state.loginStatus' class='footer'>
+    <h3>Logged in as {{ $store.state.loggedInUser }}. Website designed by P M Meddings using <a href='https://vuejs.org/' target='_blank'>VueJS</a> and the <a href='https://chanind.github.io/hanzi-writer/docs.html' target='_blank'>Hanzi Writer</a> API. This site is indented as a free educational tool.</h3>
   </div>
   <div v-else class='footer'>
     <h3>Website designed by P M Meddings using <a href='https://vuejs.org/' target='_blank'>VueJS</a> and the <a href='https://chanind.github.io/hanzi-writer/docs.html' target='_blank'>Hanzi Writer</a> API. This site is indented as a free educational tool.</h3>
@@ -8,22 +8,24 @@
 </template>
 
 <script>
-import firebase from 'firebase';
+import { mapGetters } from 'vuex';
 
 export default {
     name: 'Footer',
-    data() {
-      return {
-        isLoggedIn: false,
-        currentUser: false
+    computed: {
+      ...mapGetters(
+        [
+          'currentUser',
+          'currentLoginStatus'
+        ]
+      ),
+      loggedInUser() {
+        return this.$store.state.loggedInUser;
+      },
+      loginStatus() {
+        return this.$store.state.loginStatus;
       }
-    },
-    created() {
-      if (firebase.auth().currentUser) {
-        this.isLoggedIn = true;
-        this.currentUser = firebase.auth().currentUser.email
-      }
-    },
+    }
   }
 </script>
 
