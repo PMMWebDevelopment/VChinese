@@ -7,30 +7,22 @@
       <md-tab id="tab-writing" md-label="Writing" to="/writing"></md-tab>
       <md-tab id="tab-about" md-label="About" to="/about"></md-tab>
        <!-- eslint-disable-next-line -->
-      <md-tab v-if='$store.state.loginStatus' id="tab-logout" to='/logout' md-label='Log out'></md-tab>
-       <!-- eslint-disable-next-line -->
-      <md-tab v-if='$store.state.loginStatus === false' id="tab-signuplogin" md-label="Sign up / Log in" to="/signuplogin"></md-tab>
+      <md-tab id="tab-loginout" :to='$store.getters.currentLoginStatus ? "/logout" : "/signuplogin"' :md-label='$store.getters.currentLoginStatus ? "Log out" : "Sign up / Log in"'></md-tab>
     </md-tabs>
   </div>
 </template>
 
 <script>
-  import { mapGetters } from 'vuex';
+  // import { mapGetters } from 'vuex';
 
   export default {
     name: 'Header',
     computed: {
-      ...mapGetters(
-        [
-          'currentUser',
-          'currentLoginStatus'
-        ]
-      ),
       loggedInUser() {
-        return this.$store.state.loggedInUser;
+        return this.$store.getters.currentLoginStatus;
       },
       loginStatus() {
-        return this.$store.state.loginStatus;
+        return this.$store.getters.currentLoginStatus;
       }
     }
   }
